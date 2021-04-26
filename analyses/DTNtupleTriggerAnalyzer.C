@@ -503,32 +503,32 @@ void DTNtupleTriggerAnalyzer::book()
 	hName = "ph2TpgPhiHw_posLoc_x_minus_seg_posLoc_x" + iChTag.str(); //  residuals ph2 posLoc_ minus seg posLoc_x
 	m_plots[hName]  = new TH1F(hName.c_str(),
 				   "ph2TpgPhiHw posLoc_s minus segm posLoc_x; ph2TpgHw-segment posLoc x;  Entries", 
-				   100, -50., 50.);  
+				   100, -5., 5.);  
 
 	hName = "ph2TpgPhiHw_posLoc_x_qual9_minus_seg_posLoc_x" + iChTag.str(); //  residuals ph2 posLoc_ minus seg posLoc_x
 	m_plots[hName]  = new TH1F(hName.c_str(),
 				   "ph2TpgPhiHw posLoc_s minus segm posLoc_x; ph2TpgHw-segment posLoc x;  Entries", 
-				   100, -50., 50.); 
+				   100, -5., 5.); 
 
 	hName = "ph2TpgPhiHw_posLoc_x_qual8_or_9_minus_seg_posLoc_x" + iChTag.str(); //  residuals ph2 posLoc_ minus seg posLoc_x
 	m_plots[hName]  = new TH1F(hName.c_str(),
 				   "ph2TpgPhiHw posLoc_s minus segm posLoc_x; ph2TpgHw-segment posLoc x;  Entries", 
-				   100, -50., 50.);   
+				   100, -5., 5.);   
 
 	hName = "ph2TpgPhiHw_posLoc_x_qual6_to_9_minus_seg_posLoc_x" + iChTag.str(); //  residuals ph2 posLoc_ minus seg posLoc_x
 	m_plots[hName]  = new TH1F(hName.c_str(),
 				   "ph2TpgPhiHw posLoc_s minus segm posLoc_x; ph2TpgHw-segment posLoc x;  Entries", 
-				   100, -50., 50.);  
+				   100, -5., 5.);  
 
 	hName = "ph2TpgPhiHw_posLoc_x_qual4or3_minus_seg_posLoc_x" + iChTag.str(); //  residuals ph2 posLoc_ minus seg posLoc_x
 	m_plots[hName]  = new TH1F(hName.c_str(),
 				   "ph2TpgPhiHw posLoc_s minus segm posLoc_x; ph2TpgHw-segment posLoc x;  Entries", 
-				   100, -50., 50.);  
+				   100, -5., 5.);  
 
 	hName = "ph2TpgPhiHw_posLoc_x_qual1or2_minus_seg_posLoc_x" + iChTag.str(); //  residuals ph2 posLoc_ minus seg posLoc_x
 	m_plots[hName]  = new TH1F(hName.c_str(),
 				   "ph2TpgPhiHw posLoc_s minus segm posLoc_x; ph2TpgHw-segment posLoc x;  Entries", 
-				   100, -50., 50.);  
+				   100, -5., 5.);  
 
 
 	//***PLOTTED IN JSON
@@ -961,6 +961,7 @@ void DTNtupleTriggerAnalyzer::fill()
 
 
   UInt_t iBestSeg[4];  //******  All from 0 to 3!
+  UInt_t iBestPh2Seg[4];
   UInt_t iBestTwinMuxOut[4];
   UInt_t iBestTwinMuxOutBXOK[4];
   UInt_t iBestTpgPhiHw[4];
@@ -972,6 +973,7 @@ void DTNtupleTriggerAnalyzer::fill()
   
   for(Int_t iMB=1; iMB<5; ++iMB) {  // 
     iBestSeg[iMB-1] = getBestSegm(iMB,iSec,iWh);
+    iBestPh2Seg[iMB-1] = getBestPh2Segm(iMB,iSec,iWh);
     iBestTwinMuxOut[iMB-1] = getBestTwinMuxOut(iMB,iSec,iWh);
     iBestTpgPhiHw[iMB-1] = getBestTpgPhiHw(iMB,iSec,iWh);
     iBestTpgPhiEmuAm[iMB-1] = getBestTpgPhiEmuAm(iMB,iSec,iWh);
@@ -1261,35 +1263,69 @@ void DTNtupleTriggerAnalyzer::fill()
 	    hName = "ph2TpgPhiHw_posLoc_x_vs_seg_posLoc_x" + iChTag.str();   // ph2 posLoc_x vs seg posLoc_x
 	    m_plots[hName]->Fill(seg_posLoc_x->at(iBestSeg[iMB-1]), ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]));  
 
-	    //uuu1
-	    hName = "ph2TpgPhiHw_posLoc_x_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus seg posLoc_x
-	    m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - seg_posLoc_x->at(iBestSeg[iMB-1]));  
+	    //new
+            if(iBestPh2Seg[iMB-1]<9999) {  // there is a good phase2 segment in the station we are in
+	      double residual_for_inclusive_plot = ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_midPlane->at(iBestPh2Seg[iMB-1]);
 
-	    if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==9)  { 
-	      hName = "ph2TpgPhiHw_posLoc_x_qual9_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus seg posLoc_x
-	      m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - seg_posLoc_x->at(iBestSeg[iMB-1]));  
-	    }
+	      if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==9)  { 
+	        hName = "ph2TpgPhiHw_posLoc_x_qual9_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus phase2 seg posLoc_x
+	        m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_midPlane->at(iBestPh2Seg[iMB-1]));  
+	      }
 
-	    if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])>=8)  { 
-	      hName = "ph2TpgPhiHw_posLoc_x_qual8_or_9_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus seg posLoc_x
-	      m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - seg_posLoc_x->at(iBestSeg[iMB-1]));  
-	    }
+	      if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])>=8)  { 
+	        hName = "ph2TpgPhiHw_posLoc_x_qual8_or_9_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus phase2 seg posLoc_x
+	        m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_midPlane->at(iBestPh2Seg[iMB-1]));  
+	      }
 
-	    if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])>=6)  { 
-	      hName = "ph2TpgPhiHw_posLoc_x_qual6_to_9_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus seg posLoc_x
-	      m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - seg_posLoc_x->at(iBestSeg[iMB-1]));  
-	    }
+	      if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])>=6)  { 
+	        hName = "ph2TpgPhiHw_posLoc_x_qual6_to_9_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus phase2 seg posLoc_x
+	        m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_midPlane->at(iBestPh2Seg[iMB-1]));  
+	      }
 
-	    if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==4 || 
-	       ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==3 )  { 
-	      hName = "ph2TpgPhiHw_posLoc_x_qual4or3_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus seg posLoc_x
-	      m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - seg_posLoc_x->at(iBestSeg[iMB-1]));  
-	    }
+	      if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==4 || 
+	         ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==3 )  { 
+	        hName = "ph2TpgPhiHw_posLoc_x_qual4or3_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus phase2 seg posLoc_x
 
-	    if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==2 || 
-	       ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==1 )  { 
-	      hName = "ph2TpgPhiHw_posLoc_x_qual1or2_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus seg posLoc_x
-	      m_plots[hName]->Fill(ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - seg_posLoc_x->at(iBestSeg[iMB-1]));  
+                double residual = -9999.;
+                bool slNotNull = false;
+	        if (ph2TpgPhiHw_superLayer->at(iBestTpgPhiHw[iMB-1]) > 2.5){
+	          residual = ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_SL3->at(iBestPh2Seg[iMB-1]);
+		  slNotNull = true;
+		  }
+	        else if (ph2TpgPhiHw_superLayer->at(iBestTpgPhiHw[iMB-1]) > 0.5){
+	          residual = ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_SL1->at(iBestPh2Seg[iMB-1]);
+		  slNotNull = true;
+		  }
+	        if (slNotNull){
+		  m_plots[hName]->Fill(residual);  
+		  residual_for_inclusive_plot = residual;
+		}
+
+	      }
+
+	      if(ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==2 || 
+	         ph2TpgPhiHw_quality->at(iBestTpgPhiHw[iMB-1])==1 )  { 
+	        hName = "ph2TpgPhiHw_posLoc_x_qual1or2_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus phase2 seg posLoc_x
+
+                double residual = -9999.;
+                bool slNotNull = false;
+	        if (ph2TpgPhiHw_superLayer->at(iBestTpgPhiHw[iMB-1]) > 2.5){
+	          residual = ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_SL3->at(iBestPh2Seg[iMB-1]);
+		  slNotNull = true;
+		  }
+	        else if (ph2TpgPhiHw_superLayer->at(iBestTpgPhiHw[iMB-1]) > 0.5){
+	          residual = ph2TpgPhiHw_posLoc_x->at(iBestTpgPhiHw[iMB-1]) - ph2Seg_posLoc_x_SL1->at(iBestPh2Seg[iMB-1]);
+		  slNotNull = true;
+		  }
+	        if (slNotNull){
+		  residual_for_inclusive_plot = residual;
+		  m_plots[hName]->Fill(residual);  
+		}
+
+	      }
+
+	      hName = "ph2TpgPhiHw_posLoc_x_minus_seg_posLoc_x" + iChTag.str();   // residuals ph2 posLoc_x minus phase2 seg posLoc_x
+	      m_plots[hName]->Fill(residual_for_inclusive_plot);  
 	    }
 	    
 	    hName = "ph2TpgPhiHw_phiB_vs_seg_dirLoc_x" + iChTag.str();   // ph2 phiB vs seg dirLoc_x
@@ -1688,6 +1724,32 @@ UInt_t DTNtupleTriggerAnalyzer::getBestSegm(const Int_t stMu,
     }
   }
   //  if(iBest<9999) std::cout << " iMB = " << stMu << " iBest = " << iBest << std::endl;;
+  return iBest;
+}
+
+UInt_t DTNtupleTriggerAnalyzer::getBestPh2Segm(const Int_t stMu,
+					       const Int_t secMu,
+					       const Int_t whMu
+					      )
+{
+  UInt_t iBest = 9999;
+  Int_t nhits = 0;
+  Int_t nmin_phihits = 4;
+
+
+  for(UInt_t iSeg=0; iSeg<ph2Seg_nSegments; ++iSeg) {  // request on the tdc segment
+    if(ph2Seg_wheel->at(iSeg)==whMu && 
+       ph2Seg_sector->at(iSeg)==secMu && 
+       ph2Seg_station->at(iSeg)==stMu && 
+       ph2Seg_hasPhi->at(iSeg)>0 &&
+       ph2Seg_phi_nHits->at(iSeg)>=nmin_phihits && 
+       nhits<=ph2Seg_phi_nHits->at(iSeg)) {
+
+      nhits = ph2Seg_phi_nHits->at(iSeg);
+      iBest = iSeg;
+    }
+  }
+
   return iBest;
 }
 

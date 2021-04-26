@@ -45,6 +45,11 @@ class DTNtupleTriggerAnalyzer : public DTNtupleBaseAnalyzer
 		      const Int_t muWh
 		      );
 
+  UInt_t getBestPh2Segm( const Int_t muSt,
+		         const Int_t muSec,
+		         const Int_t muWh
+		        );
+
   UInt_t getBestTwinMuxOut( const Int_t muSt,
 			    const Int_t muSec,
 			    const Int_t muWh
